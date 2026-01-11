@@ -8,7 +8,7 @@ Agent Skills provide contextual documentation that AI coding assistants load aut
 
 Skills follow the [agentskills](https://agentskills.io) open format, supported by Claude Code, GitHub Copilot, Cursor, and other AI coding tools.
 
-This package enables library authors to bundle skills with their npm packages. When users install your package, the skills are discovered and exported to the appropriate location for their AI agent.
+This package enables library authors to bundle skills with their npm packages. When users install your package, their AI agent discovers and exports the skills to the appropriate location.
 
 ## Installation
 
@@ -46,10 +46,9 @@ skills/my-skill/
 
 ### Nuxt Applications (Automatic)
 
-Add the module to your Nuxt config. Skills are automatically discovered from `node_modules` and exported when you run `nuxi prepare` or `nuxi dev`:
+Add the module to your Nuxt config. The module automatically discovers skills from `node_modules` and exports them when you run `nuxi prepare` or `nuxi dev`:
 
-```ts
-// nuxt.config.ts
+```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   modules: ['npm-agentskills/nuxt'],
   agentskills: {
@@ -78,7 +77,7 @@ npx agentskills list
 
 Add this to your `postinstall` script for automatic exports:
 
-```json
+```json [package.json]
 {
   "scripts": {
     "postinstall": "agentskills export --target claude"
@@ -163,11 +162,11 @@ agentskills export --dest ./custom-path  # Custom destination
 3. **Export**: Copies skill directories to the appropriate agent location
 4. **Manifest**: Generates a `manifest.json` file listing all discovered skills
 
-For Nuxt, this happens automatically during `nuxi prepare`. For other frameworks, you run the CLI manually or via npm scripts.
+For Nuxt, the module handles this automatically during `nuxi prepare`. For other frameworks, you run the CLI manually or via npm scripts.
 
 ## Testing Your Skills
 
-Verify skills are discovered correctly:
+Verify the tool discovers your skills correctly:
 
 ```bash
 # List discovered skills
