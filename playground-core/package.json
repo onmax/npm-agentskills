@@ -1,7 +1,7 @@
 {
   "name": "playground-core",
-  "private": true,
   "type": "module",
+  "private": true,
   "agentskills": {
     "skills": [{ "name": "test-skill", "path": "./skills/test-skill" }]
   },

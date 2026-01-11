@@ -1,4 +1,4 @@
-import type { NuxtModule } from '@nuxt/schema'
+import type { Nuxt, NuxtModule } from '@nuxt/schema'
 import type { NuxtModuleOptions, ResolvedSkill } from './types'
 import { addTemplate, defineNuxtModule } from '@nuxt/kit'
 import { consola } from 'consola'
@@ -13,12 +13,12 @@ const logger = consola.withTag('agentskills')
 // Store resolved skills in nuxt.options for cross-hook access
 const RESOLVED_KEY = '__agentskillsResolved'
 
-function setResolved(nuxt: { options: Record<string, unknown> }, skills: ResolvedSkill[]): void {
-  nuxt.options[RESOLVED_KEY] = skills
+function setResolved(nuxt: Nuxt, skills: ResolvedSkill[]): void {
+  (nuxt.options as unknown as Record<string, unknown>)[RESOLVED_KEY] = skills
 }
 
-function getResolved(nuxt: { options: Record<string, unknown> }): ResolvedSkill[] {
-  return (nuxt.options[RESOLVED_KEY] || []) as ResolvedSkill[]
+function getResolved(nuxt: Nuxt): ResolvedSkill[] {
+  return ((nuxt.options as unknown as Record<string, unknown>)[RESOLVED_KEY] || []) as ResolvedSkill[]
 }
 
 const module: NuxtModule<NuxtModuleOptions> = defineNuxtModule<NuxtModuleOptions>({

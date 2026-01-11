@@ -73,11 +73,11 @@ agentskills export --dest ./custom-path
 
 ```ts
 import {
-  scanForSkillPackages,
-  scanLocalPackage,
-  resolveSkills,
   exportToTargets,
   generateManifest,
+  resolveSkills,
+  scanForSkillPackages,
+  scanLocalPackage,
 } from 'npm-agentskills'
 
 // Scan for skills

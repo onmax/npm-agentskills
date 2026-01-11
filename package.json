@@ -1,11 +1,13 @@
 {
   "name": "npm-agentskills",
-  "version": "0.1.0",
   "type": "module",
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.15.1",
   "description": "Framework-agnostic skill discovery and export for AI coding agents",
   "author": "onmax",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/onmax/npm-agentskills" },
+  "sideEffects": false,
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./nuxt": { "types": "./dist/nuxt.d.ts", "import": "./dist/nuxt.js" }
@@ -14,22 +16,14 @@
   "types": "./dist/index.d.ts",
   "bin": { "agentskills": "./dist/cli/index.js" },
   "files": ["dist"],
-  "sideEffects": false,
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --passthrough --run",
     "release": "bumpp && git push --follow-tags"
-  },
-  "dependencies": {
-    "citty": "^0.1.6",
-    "consola": "^3.4.0",
-    "gray-matter": "^4.0.3",
-    "pathe": "^2.0.0",
-    "pkg-types": "^2.0.0"
   },
   "peerDependencies": {
     "@nuxt/kit": "^4.0.0",
@@ -39,16 +33,23 @@
     "@nuxt/kit": { "optional": true },
     "nuxt": { "optional": true }
   },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "consola": "^3.4.0",
+    "gray-matter": "^4.0.3",
+    "pathe": "^2.0.0",
+    "pkg-types": "^2.0.0"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.0.0",
     "@nuxt/kit": "^4.0.0",
     "@nuxt/schema": "^4.0.0",
     "@nuxt/test-utils": "^3.21.0",
+    "@types/node": "^22.0.0",
     "bumpp": "^10.0.0",
     "eslint": "^9.0.0",
     "tsdown": "^0.9.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
-  },
-  "packageManager": "pnpm@10.15.1"
+  }
 }

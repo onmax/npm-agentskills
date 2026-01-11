@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { promises as fsp } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
