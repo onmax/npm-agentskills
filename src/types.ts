@@ -36,13 +36,17 @@ export interface SkillsManifest {
 /** Agent targets for export */
 export type AgentTarget = 'claude' | 'copilot' | 'cursor' | 'codex' | 'opencode' | 'amp' | 'goose'
 
-/** Agent destination paths */
+/**
+ * Agent destination paths.
+ * Paths starting with '.' are project-local (relative to cwd).
+ * Paths starting with '~' are global (user home directory).
+ */
 export const AGENT_DESTINATIONS: Record<AgentTarget, string> = {
-  claude: '~/.claude/skills/',
+  claude: '.claude/skills/',
   copilot: '.github/skills/',
   cursor: '.cursor/skills/',
   codex: '.codex/skills/',
-  opencode: '~/.opencode/skills/',
+  opencode: '.opencode/skill/',
   amp: '~/.amp/skills/',
   goose: '~/.config/goose/skills/',
 }
