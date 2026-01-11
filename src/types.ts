@@ -40,6 +40,15 @@ export type AgentTarget = 'claude' | 'copilot' | 'cursor' | 'codex' | 'opencode'
  * Agent destination paths.
  * Paths starting with '.' are project-local (relative to cwd).
  * Paths starting with '~' are global (user home directory).
+ *
+ * Sources:
+ * - Claude: https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/skills
+ * - Copilot: https://docs.github.com/en/copilot/concepts/agents/about-agent-skills
+ * - Cursor: https://cursor.com/docs/context/skills
+ * - Codex: https://developers.openai.com/codex/skills
+ * - OpenCode: https://opencode.ai/docs/skills
+ * - Amp: https://ampcode.com/news/agent-skills
+ * - Goose: https://block.github.io/goose/docs/guides/context-engineering/using-skills
  */
 export const AGENT_DESTINATIONS: Record<AgentTarget, string> = {
   claude: '.claude/skills/',
@@ -47,8 +56,8 @@ export const AGENT_DESTINATIONS: Record<AgentTarget, string> = {
   cursor: '.cursor/skills/',
   codex: '.codex/skills/',
   opencode: '.opencode/skill/',
-  amp: '~/.amp/skills/',
-  goose: '~/.config/goose/skills/',
+  amp: '.agents/skills/',
+  goose: '.goose/skills/',
 }
 
 /** Nuxt module options */

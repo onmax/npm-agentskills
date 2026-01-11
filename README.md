@@ -2,11 +2,13 @@
 
 Framework-agnostic skill discovery and export for AI coding agents.
 
-## What It Does
+## What Are Agent Skills?
 
-This package allows library authors to bundle "skills" (contextual documentation for AI coding assistants) with their npm packages. When users install your package, the skills are automatically discovered and exported to the appropriate location for their AI agent.
+Agent Skills are packages of documentation that AI coding assistants load contextually. When you're working with a library, the AI agent reads the skill's instructions to understand how to help you effectively.
 
-Skills follow the [agentskills](https://agentskills.io) open format, which is supported by Claude Code, GitHub Copilot, Cursor, and other AI coding tools.
+Skills follow the [agentskills](https://agentskills.io) open format, which is supported by Claude Code, GitHub Copilot, Cursor, OpenAI Codex, and other AI coding tools.
+
+This package allows library authors to bundle skills with their npm packages. When users install your package, the skills can be discovered and exported to the appropriate location for their AI agent.
 
 ## Installation
 
@@ -14,7 +16,7 @@ Skills follow the [agentskills](https://agentskills.io) open format, which is su
 npm install npm-agentskills
 ```
 
-## Defining Skills
+## Defining Skills in Your Package
 
 Add an `agentskills` field to your `package.json` that points to skill directories:
 
@@ -29,7 +31,7 @@ Add an `agentskills` field to your `package.json` that points to skill directori
 }
 ```
 
-Each skill directory must contain a `SKILL.md` file with frontmatter metadata:
+Each skill directory must contain a `SKILL.md` file with YAML frontmatter:
 
 ```
 skills/my-skill/
@@ -54,43 +56,79 @@ license: MIT
 Main documentation content that the AI reads when working with your library...
 ```
 
-The `description` field is important because AI agents use it to decide when to automatically activate the skill based on the user's current context.
+The `description` field is critical. AI agents use it to decide when to automatically activate the skill based on the user's current context.
 
-## Nuxt Integration
+## Usage
 
-For Nuxt applications, add the module to your config. Skills are automatically discovered and exported when you run `nuxi prepare` or `nuxi dev`:
+### For Nuxt Applications (Automatic)
+
+Add the module to your Nuxt config. Skills are automatically discovered from `node_modules` and exported when you run `nuxi prepare` or `nuxi dev`:
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['npm-agentskills/nuxt'],
   agentskills: {
-    targets: ['claude', 'cursor'], // Export to these agents
+    targets: ['claude', 'cursor'],
   },
 })
 ```
 
-The module scans your `node_modules` for packages with `agentskills` fields and exports their skills to project-local directories that your AI agent reads.
+The module scans your dependencies for packages with `agentskills` fields and exports their skills to project-local directories.
 
-## CLI
+### For Other Frameworks (CLI)
 
-The CLI provides commands for listing and exporting skills manually:
+If you're not using Nuxt, run the CLI after installing packages that contain skills:
 
 ```bash
-# List all discovered skills and their sources
-agentskills list
+# Export skills to Claude Code's directory
+npx agentskills export --target claude
 
-# Export skills to a specific agent's directory
-agentskills export --target claude
-agentskills export --target cursor
+# Export to multiple agents
+npx agentskills export --target cursor
+npx agentskills export --target codex
 
-# Export to a custom directory
-agentskills export --dest ./custom-path
+# List all discovered skills
+npx agentskills list
 ```
+
+You can add this to your `postinstall` script for automatic exports:
+
+```json
+{
+  "scripts": {
+    "postinstall": "agentskills export --target claude"
+  }
+}
+```
+
+## Supported Agents
+
+All paths are project-local, keeping skills scoped to your project rather than polluting global configuration.
+
+| Agent      | Directory            | Documentation |
+|------------|----------------------|---------------|
+| Claude     | `.claude/skills/`    | [docs](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/skills) |
+| Copilot    | `.github/skills/`    | [docs](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) |
+| Cursor     | `.cursor/skills/`    | [docs](https://cursor.com/docs/context/skills) |
+| Codex      | `.codex/skills/`     | [docs](https://developers.openai.com/codex/skills) |
+| OpenCode   | `.opencode/skill/`   | [docs](https://opencode.ai/docs/skills) |
+| Amp        | `.agents/skills/`    | [docs](https://ampcode.com/news/agent-skills) |
+| Goose      | `.goose/skills/`     | [docs](https://block.github.io/goose/docs/guides/context-engineering/using-skills) |
+
+### Cross-Agent Compatibility
+
+Many agents read from multiple directories for compatibility:
+
+- **Goose** also reads `.claude/skills/` and `.agents/skills/`
+- **OpenCode** also reads `.claude/skills/`
+- **Amp** uses the portable `.agents/skills/` convention
+
+If you target `claude`, your skills will work with Goose and OpenCode automatically.
 
 ## Programmatic API
 
-Use the core functions directly in your build tools:
+Use the core functions directly in build tools or custom integrations:
 
 ```ts
 import {
@@ -117,21 +155,31 @@ await exportToTargets(skills, ['claude', 'cursor'], './')
 const manifest = generateManifest(skills)
 ```
 
-## Supported Agents
+## CLI Reference
 
-Skills are exported to project-local directories where possible. This keeps skills scoped to the project rather than polluting the user's global configuration.
+```bash
+# List all discovered skills with their sources
+agentskills list
+agentskills list --json          # Output as JSON
 
-| Agent    | Destination             | Scope   |
-|----------|-------------------------|---------|
-| claude   | .claude/skills/         | Project |
-| copilot  | .github/skills/         | Project |
-| cursor   | .cursor/skills/         | Project |
-| codex    | .codex/skills/          | Project |
-| opencode | .opencode/skill/        | Project |
-| amp      | ~/.amp/skills/          | Global  |
-| goose    | ~/.config/goose/skills/ | Global  |
+# Export skills to agent directory
+agentskills export --target claude
+agentskills export --target cursor
+agentskills export --dest ./custom-path  # Custom destination
 
-For agents that only support global directories (amp, goose), skills are exported to the user's home directory.
+# Options
+--cwd <dir>      # Project root (default: current directory)
+--dir <dir>      # Skills directory (default: .nuxt/skills)
+```
+
+## How It Works
+
+1. **Discovery**: Scans `node_modules` for packages with an `agentskills` field in their `package.json`
+2. **Resolution**: Reads each skill's `SKILL.md` file and parses the frontmatter metadata
+3. **Export**: Copies skill directories to the appropriate agent location
+4. **Manifest**: Generates a `manifest.json` file listing all discovered skills
+
+For Nuxt, this happens automatically during `nuxi prepare`. For other frameworks, you run the CLI manually or via npm scripts.
 
 ## License
 
