@@ -22,7 +22,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "test": "vitest --passthrough --run",
+    "test": "vitest --run --passWithNoTests",
     "release": "bumpp && git push --follow-tags"
   },
   "peerDependencies": {
