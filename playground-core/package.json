@@ -1,0 +1,14 @@
+{
+  "name": "playground-core",
+  "private": true,
+  "type": "module",
+  "agentskills": {
+    "skills": [{ "name": "test-skill", "path": "./skills/test-skill" }]
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "npm-agentskills": "link:.."
+  }
+}
