@@ -179,28 +179,6 @@ npx agents export --target claude
 ls -la .claude/skills/your-skill/
 ```
 
-## Migration from v0.1.0
-
-v1.0.0 introduces breaking changes. Update:
-
-**package.json:**
-```diff
-- "agentskills": { "skills": [...] }
-+ "agents": { "skills": [...] }
-```
-
-**nuxt.config.ts:**
-```diff
-- agentskills: { targets: ['claude'] }
-+ agents: { targets: ['claude'] }
-```
-
-**CLI:**
-```diff
-- npx agentskills export
-+ npx agents export
-```
-
 ## License
 
 MIT
