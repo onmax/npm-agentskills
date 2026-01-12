@@ -1,17 +1,22 @@
-import type { PackageAgentSkills } from './types'
+import type { PackageAgents, ScannedPackage } from './types'
 import { existsSync, promises as fsp } from 'node:fs'
 import { join } from 'pathe'
 import { readPackageJSON } from 'pkg-types'
 
-/** Scan node_modules for packages with agentskills field */
-export async function scanForSkillPackages(modulesDir: string): Promise<Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }>> {
-  const results: Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }> = []
+/** Check if entry is a directory (follows symlinks) */
+function isDir(entry: { isDirectory: () => boolean, isSymbolicLink: () => boolean }): boolean {
+  return entry.isDirectory() || entry.isSymbolicLink()
+}
+
+/** Scan node_modules for packages with agents field */
+export async function scanForSkillPackages(modulesDir: string): Promise<ScannedPackage[]> {
+  const results: ScannedPackage[] = []
   if (!existsSync(modulesDir))
     return results
 
   const entries = await fsp.readdir(modulesDir, { withFileTypes: true })
   for (const entry of entries) {
-    if (!entry.isDirectory())
+    if (!isDir(entry))
       continue
 
     // Handle scoped packages (@org/pkg)
@@ -19,7 +24,7 @@ export async function scanForSkillPackages(modulesDir: string): Promise<Array<{ 
       const scopeDir = join(modulesDir, entry.name)
       const scopedEntries = await fsp.readdir(scopeDir, { withFileTypes: true }).catch(() => [])
       for (const scopedEntry of scopedEntries) {
-        if (!scopedEntry.isDirectory())
+        if (!isDir(scopedEntry))
           continue
         const pkgDir = join(scopeDir, scopedEntry.name)
         await checkPackage(pkgDir, `${entry.name}/${scopedEntry.name}`, results)
@@ -33,23 +38,23 @@ export async function scanForSkillPackages(modulesDir: string): Promise<Array<{ 
   return results
 }
 
-async function checkPackage(pkgDir: string, pkgName: string, results: Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }>): Promise<void> {
+async function checkPackage(pkgDir: string, pkgName: string, results: ScannedPackage[]): Promise<void> {
   try {
     const pkg = await readPackageJSON(pkgDir)
-    if (pkg.agentskills && Array.isArray((pkg.agentskills as PackageAgentSkills).skills)) {
-      results.push({ pkg: pkg.name || pkgName, skills: pkg.agentskills as PackageAgentSkills, pkgDir })
+    if (pkg.agents && Array.isArray((pkg.agents as PackageAgents).skills)) {
+      results.push({ pkg: pkg.name || pkgName, skills: pkg.agents as PackageAgents, pkgDir })
     }
   }
   catch { /* ignore packages without package.json */ }
 }
 
-/** Scan local project package.json for agentskills */
-export async function scanLocalPackage(rootDir: string): Promise<Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }>> {
-  const results: Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }> = []
+/** Scan local project package.json for agents */
+export async function scanLocalPackage(rootDir: string): Promise<ScannedPackage[]> {
+  const results: ScannedPackage[] = []
   try {
     const pkg = await readPackageJSON(rootDir)
-    if (pkg.agentskills && Array.isArray((pkg.agentskills as PackageAgentSkills).skills)) {
-      results.push({ pkg: pkg.name || 'local', skills: pkg.agentskills as PackageAgentSkills, pkgDir: rootDir })
+    if (pkg.agents && Array.isArray((pkg.agents as PackageAgents).skills)) {
+      results.push({ pkg: pkg.name || 'local', skills: pkg.agents as PackageAgents, pkgDir: rootDir })
     }
   }
   catch { /* no package.json */ }

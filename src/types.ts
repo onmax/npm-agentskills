@@ -1,13 +1,18 @@
-/** Skill entry in package.json agentskills field */
+/** Skill entry in package.json agents field */
 export interface SkillEntry {
   name: string
   path: string
 }
 
-/** package.json agentskills field schema */
-export interface PackageAgentSkills {
-  skills: SkillEntry[]
+/** package.json agents field schema */
+export interface PackageAgents {
+  skills?: SkillEntry[]
+  mcp?: Record<string, unknown> // future: Model Context Protocol
+  llms?: Record<string, unknown> // future: LLM configs
 }
+
+/** Result from scanning a package for agents config */
+export interface ScannedPackage { pkg: string, skills: PackageAgents, pkgDir: string }
 
 /** Resolved skill after processing */
 export interface ResolvedSkill {

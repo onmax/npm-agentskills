@@ -9,11 +9,13 @@ export function expandHome(path: string): string {
   return path.startsWith('~') ? path.replace('~', homedir()) : path
 }
 
-/** Copy skill directory recursively */
+/** Copy skill directory recursively (skips symlinks for security) */
 export async function copySkillDir(srcDir: string, destDir: string): Promise<void> {
   await fsp.mkdir(destDir, { recursive: true })
   const entries = await fsp.readdir(srcDir, { withFileTypes: true })
   for (const entry of entries) {
+    if (entry.isSymbolicLink())
+      continue
     const srcPath = join(srcDir, entry.name)
     const destPath = join(destDir, entry.name)
     if (entry.isDirectory()) {

@@ -1,7 +1,7 @@
 {
   "name": "npm-agentskills",
   "type": "module",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "packageManager": "pnpm@10.15.1",
   "description": "Framework-agnostic skill discovery and export for AI coding agents",
   "author": "onmax",
@@ -14,7 +14,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": { "agentskills": "./dist/cli/index.js" },
+  "bin": { "agents": "./dist/cli/index.js" },
   "files": ["dist"],
   "scripts": {
     "build": "tsdown",

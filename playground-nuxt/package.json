@@ -2,7 +2,7 @@
   "name": "playground-nuxt",
   "type": "module",
   "private": true,
-  "agentskills": {
+  "agents": {
     "skills": [{ "name": "nuxt-test-skill", "path": "./skills/nuxt-test-skill" }]
   },
   "scripts": {

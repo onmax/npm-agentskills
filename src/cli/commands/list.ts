@@ -12,7 +12,7 @@ export default defineCommand({
   },
   args: {
     cwd: { type: 'string', description: 'Project root directory', default: '.' },
-    dir: { type: 'string', alias: 'd', description: 'Skills directory (default: .nuxt/skills)', default: '.nuxt/skills' },
+    dir: { type: 'string', alias: 'd', description: 'Skills directory', default: 'node_modules/.cache/agentskills' },
     json: { type: 'boolean', alias: 'j', description: 'Output as JSON', default: false },
   },
   async run({ args }) {
@@ -26,7 +26,14 @@ export default defineCommand({
       process.exit(1)
     }
 
-    const manifest: SkillsManifest = JSON.parse(await fsp.readFile(manifestPath, 'utf-8'))
+    let manifest: SkillsManifest
+    try {
+      manifest = JSON.parse(await fsp.readFile(manifestPath, 'utf-8'))
+    }
+    catch {
+      consola.error(`Failed to parse manifest at ${manifestPath}`)
+      process.exit(1)
+    }
 
     if (args.json) {
       console.log(JSON.stringify(manifest, null, 2))

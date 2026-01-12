@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   modules: ['npm-agentskills/nuxt'],
 
-  agentskills: {
+  agents: {
     targets: ['claude'],
   },
 
