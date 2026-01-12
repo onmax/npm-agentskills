@@ -16,7 +16,7 @@ export default defineCommand({
   },
   args: {
     cwd: { type: 'string', description: 'Project root directory', default: '.' },
-    dir: { type: 'string', alias: 'd', description: 'Skills directory (default: .nuxt/skills)', default: '.nuxt/skills' },
+    dir: { type: 'string', alias: 'd', description: 'Skills directory', default: 'node_modules/.cache/agentskills' },
     target: { type: 'string', alias: 't', description: `Agent target: ${VALID_TARGETS.join(', ')}`, default: 'claude' },
     dest: { type: 'string', description: 'Custom destination directory (overrides --target)' },
   },
@@ -31,7 +31,14 @@ export default defineCommand({
       process.exit(1)
     }
 
-    const manifest: SkillsManifest = JSON.parse(await fsp.readFile(manifestPath, 'utf-8'))
+    let manifest: SkillsManifest
+    try {
+      manifest = JSON.parse(await fsp.readFile(manifestPath, 'utf-8'))
+    }
+    catch {
+      consola.error(`Failed to parse manifest at ${manifestPath}`)
+      process.exit(1)
+    }
 
     if (manifest.skills.length === 0) {
       consola.info('No bundled skills to export')

@@ -1,4 +1,4 @@
-import type { PackageAgentSkills, ResolvedSkill } from './types'
+import type { ResolvedSkill, ScannedPackage } from './types'
 import { existsSync, promises as fsp } from 'node:fs'
 import matter from 'gray-matter'
 import { join, resolve } from 'pathe'
@@ -22,47 +22,43 @@ export async function findReferences(skillDir: string): Promise<string[]> {
   return files.filter(f => f.endsWith('.md')).map(f => `references/${f}`)
 }
 
+/** Validate skill path doesn't escape package directory */
+function validateSkillPath(path: string): void {
+  if (path.includes('..') || path.startsWith('/') || path.startsWith('\\')) {
+    throw new Error(`Invalid skill path (path traversal attempt): ${path}`)
+  }
+}
+
+/** Process skills from a scanned package array */
+async function processSkillPackages(packages: ScannedPackage[], seen: Set<string>, resolved: ResolvedSkill[]): Promise<void> {
+  for (const { pkg, skills, pkgDir } of packages) {
+    if (!skills.skills)
+      continue
+    for (const entry of skills.skills) {
+      if (seen.has(entry.name))
+        continue
+      validateSkillPath(entry.path)
+      const skillDir = resolve(pkgDir, entry.path)
+      const skillMdPath = join(skillDir, 'SKILL.md')
+      if (!existsSync(skillMdPath)) {
+        console.warn(`[agents] SKILL.md not found: ${skillMdPath}`)
+        continue
+      }
+      const meta = await parseSkillMd(skillMdPath)
+      seen.add(entry.name)
+      resolved.push({ name: entry.name, description: meta.description, license: meta.license, source: pkg, dir: skillDir, references: await findReferences(skillDir) })
+    }
+  }
+}
+
 /** Resolve skills from packages and local package.json */
-export async function resolveSkills(
-  packageSkills: Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }>,
-  localSkills: Array<{ pkg: string, skills: PackageAgentSkills, pkgDir: string }>,
-): Promise<ResolvedSkill[]> {
+export async function resolveSkills(packageSkills: ScannedPackage[], localSkills: ScannedPackage[]): Promise<ResolvedSkill[]> {
   const resolved: ResolvedSkill[] = []
   const seen = new Set<string>()
 
-  // Process local package.json agentskills (priority over node_modules)
-  for (const { pkg, skills, pkgDir } of localSkills) {
-    for (const entry of skills.skills) {
-      if (seen.has(entry.name))
-        continue
-      const skillDir = resolve(pkgDir, entry.path)
-      const skillMdPath = join(skillDir, 'SKILL.md')
-      if (!existsSync(skillMdPath)) {
-        console.warn(`[agentskills] SKILL.md not found: ${skillMdPath}`)
-        continue
-      }
-      const meta = await parseSkillMd(skillMdPath)
-      seen.add(entry.name)
-      resolved.push({ name: entry.name, description: meta.description, license: meta.license, source: pkg, dir: skillDir, references: await findReferences(skillDir) })
-    }
-  }
-
-  // Process node_modules package.json agentskills
-  for (const { pkg, skills, pkgDir } of packageSkills) {
-    for (const entry of skills.skills) {
-      if (seen.has(entry.name))
-        continue
-      const skillDir = resolve(pkgDir, entry.path)
-      const skillMdPath = join(skillDir, 'SKILL.md')
-      if (!existsSync(skillMdPath)) {
-        console.warn(`[agentskills] SKILL.md not found: ${skillMdPath}`)
-        continue
-      }
-      const meta = await parseSkillMd(skillMdPath)
-      seen.add(entry.name)
-      resolved.push({ name: entry.name, description: meta.description, license: meta.license, source: pkg, dir: skillDir, references: await findReferences(skillDir) })
-    }
-  }
+  // Local skills take priority over node_modules
+  await processSkillPackages(localSkills, seen, resolved)
+  await processSkillPackages(packageSkills, seen, resolved)
 
   return resolved
 }

@@ -18,12 +18,12 @@ npm install npm-agentskills
 
 ## For Library Authors: Bundling Skills
 
-Add an `agentskills` field to your `package.json` that points to skill directories:
+Add an `agents` field to your `package.json` that points to skill directories:
 
 ```json
 {
   "name": "my-awesome-library",
-  "agentskills": {
+  "agents": {
     "skills": [
       { "name": "my-skill", "path": "./skills/my-skill" }
     ]
@@ -51,13 +51,13 @@ Add the module to your Nuxt config. The module automatically discovers skills fr
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   modules: ['npm-agentskills/nuxt'],
-  agentskills: {
+  agents: {
     targets: ['claude', 'cursor'],
   },
 })
 ```
 
-The module scans your dependencies for packages with `agentskills` fields and exports their skills to project-local directories.
+The module scans your dependencies for packages with `agents` fields and exports their skills to project-local directories.
 
 ### Other Frameworks (CLI)
 
@@ -65,14 +65,14 @@ Run the CLI after installing packages that contain skills:
 
 ```bash
 # Export skills to Claude Code
-npx agentskills export --target claude
+npx agents export --target claude
 
 # Export to multiple agents
-npx agentskills export --target cursor
-npx agentskills export --target codex
+npx agents export --target cursor
+npx agents export --target codex
 
 # List all discovered skills
-npx agentskills list
+npx agents list
 ```
 
 Add this to your `postinstall` script for automatic exports:
@@ -80,7 +80,7 @@ Add this to your `postinstall` script for automatic exports:
 ```json [package.json]
 {
   "scripts": {
-    "postinstall": "agentskills export --target claude"
+    "postinstall": "agents export --target claude"
   }
 }
 ```
@@ -122,7 +122,7 @@ import {
   scanLocalPackage,
 } from 'npm-agentskills'
 
-// Scan node_modules for packages with agentskills field
+// Scan node_modules for packages with agents field
 const packageSkills = await scanForSkillPackages('./node_modules')
 
 // Scan local package.json for skills defined in this project
@@ -142,22 +142,22 @@ const manifest = generateManifest(skills)
 
 ```bash
 # List all discovered skills with their sources
-agentskills list
-agentskills list --json          # Output as JSON
+agents list
+agents list --json          # Output as JSON
 
 # Export skills to agent directory
-agentskills export --target claude
-agentskills export --target cursor
-agentskills export --dest ./custom-path  # Custom destination
+agents export --target claude
+agents export --target cursor
+agents export --dest ./custom-path  # Custom destination
 
 # Options
 --cwd <dir>      # Project root (default: current directory)
---dir <dir>      # Skills directory (default: .nuxt/skills)
+--dir <dir>      # Skills directory (default: node_modules/.cache/agentskills)
 ```
 
 ## How It Works
 
-1. **Discovery**: Scans `node_modules` for packages with an `agentskills` field in their `package.json`
+1. **Discovery**: Scans `node_modules` for packages with an `agents` field in their `package.json`
 2. **Resolution**: Reads each skill's `SKILL.md` file and parses the frontmatter metadata
 3. **Export**: Copies skill directories to the appropriate agent location
 4. **Manifest**: Generates a `manifest.json` file listing all discovered skills
@@ -170,13 +170,35 @@ Verify the tool discovers your skills correctly:
 
 ```bash
 # List discovered skills
-npx agentskills list
+npx agents list
 
 # Export to agent directory
-npx agentskills export --target claude
+npx agents export --target claude
 
 # Verify files exist
 ls -la .claude/skills/your-skill/
+```
+
+## Migration from v0.1.0
+
+v1.0.0 introduces breaking changes. Update:
+
+**package.json:**
+```diff
+- "agentskills": { "skills": [...] }
++ "agents": { "skills": [...] }
+```
+
+**nuxt.config.ts:**
+```diff
+- agentskills: { targets: ['claude'] }
++ agents: { targets: ['claude'] }
+```
+
+**CLI:**
+```diff
+- npx agentskills export
++ npx agents export
 ```
 
 ## License

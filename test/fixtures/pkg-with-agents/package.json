@@ -1,0 +1,9 @@
+{
+  "name": "test-pkg-with-agents",
+  "version": "1.0.0",
+  "agents": {
+    "skills": [
+      { "name": "test-skill", "path": "./skills/test-skill" }
+    ]
+  }
+}

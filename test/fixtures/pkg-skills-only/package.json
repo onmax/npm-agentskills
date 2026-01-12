@@ -1,0 +1,9 @@
+{
+  "name": "test-pkg-skills-only",
+  "version": "1.0.0",
+  "agents": {
+    "skills": [
+      { "name": "another-skill", "path": "./skills/another-skill" }
+    ]
+  }
+}
