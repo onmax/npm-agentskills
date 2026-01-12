@@ -3,6 +3,11 @@ import { existsSync, promises as fsp } from 'node:fs'
 import { join } from 'pathe'
 import { readPackageJSON } from 'pkg-types'
 
+/** Check if entry is a directory (follows symlinks) */
+function isDir(entry: { isDirectory: () => boolean, isSymbolicLink: () => boolean }): boolean {
+  return entry.isDirectory() || entry.isSymbolicLink()
+}
+
 /** Scan node_modules for packages with agents field */
 export async function scanForSkillPackages(modulesDir: string): Promise<ScannedPackage[]> {
   const results: ScannedPackage[] = []
@@ -11,7 +16,7 @@ export async function scanForSkillPackages(modulesDir: string): Promise<ScannedP
 
   const entries = await fsp.readdir(modulesDir, { withFileTypes: true })
   for (const entry of entries) {
-    if (!entry.isDirectory())
+    if (!isDir(entry))
       continue
 
     // Handle scoped packages (@org/pkg)
@@ -19,7 +24,7 @@ export async function scanForSkillPackages(modulesDir: string): Promise<ScannedP
       const scopeDir = join(modulesDir, entry.name)
       const scopedEntries = await fsp.readdir(scopeDir, { withFileTypes: true }).catch(() => [])
       for (const scopedEntry of scopedEntries) {
-        if (!scopedEntry.isDirectory())
+        if (!isDir(scopedEntry))
           continue
         const pkgDir = join(scopeDir, scopedEntry.name)
         await checkPackage(pkgDir, `${entry.name}/${scopedEntry.name}`, results)
