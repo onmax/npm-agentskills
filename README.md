@@ -42,6 +42,24 @@ skills/my-skill/
 
 **Learn how to write skills:** See the [agentskills.io specification](https://agentskills.io/specification) for the complete guide on creating effective agent skills.
 
+## For Nuxt Module Authors
+
+Define skills directly in your module's `meta.agents` field instead of `package.json`:
+
+```ts
+export default defineNuxtModule({
+  meta: {
+    name: '@nuxt/content',
+    configKey: 'content',
+    agents: {
+      skills: [{ name: 'nuxt-content', path: './skills/nuxt-content' }]
+    }
+  },
+})
+```
+
+The skill path is resolved relative to the module's entry file. This approach is preferred over `package.json` as it keeps the skill definition alongside the module code and takes priority during deduplication.
+
 ## For End Users: Installing Skills
 
 ### Nuxt Applications (Automatic)

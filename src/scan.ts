@@ -1,7 +1,13 @@
+import type { Nuxt } from '@nuxt/schema'
 import type { PackageAgents, ScannedPackage } from './types'
 import { existsSync, promises as fsp } from 'node:fs'
-import { join } from 'pathe'
+import { dirname, join } from 'pathe'
 import { readPackageJSON } from 'pkg-types'
+
+interface InstalledModule {
+  meta?: { name?: string, agents?: PackageAgents, [key: string]: unknown }
+  entryPath?: string
+}
 
 /** Check if entry is a directory (follows symlinks) */
 function isDir(entry: { isDirectory: () => boolean, isSymbolicLink: () => boolean }): boolean {
@@ -58,5 +64,18 @@ export async function scanLocalPackage(rootDir: string): Promise<ScannedPackage[
     }
   }
   catch { /* no package.json */ }
+  return results
+}
+
+/** Scan installed Nuxt modules for meta.agents field */
+export function scanInstalledModules(nuxt: Nuxt): ScannedPackage[] {
+  const results: ScannedPackage[] = []
+  const installed = (nuxt.options as unknown as Record<string, unknown>)._installedModules as InstalledModule[] || []
+
+  for (const mod of installed) {
+    if (mod.meta?.agents?.skills && mod.entryPath) {
+      results.push({ pkg: mod.meta.name || 'unknown-module', skills: mod.meta.agents, pkgDir: dirname(mod.entryPath) })
+    }
+  }
   return results
 }

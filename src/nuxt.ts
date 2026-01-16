@@ -7,7 +7,7 @@ import { join, resolve } from 'pathe'
 import { copySkillDir, exportToTargets } from './export'
 import { generateManifest } from './manifest'
 import { resolveSkills } from './resolve'
-import { scanForSkillPackages, scanLocalPackage } from './scan'
+import { scanForSkillPackages, scanInstalledModules, scanLocalPackage } from './scan'
 
 const logger = consola.withTag('agents')
 
@@ -36,12 +36,13 @@ const module: NuxtModule<NuxtModuleOptions> = defineNuxtModule<NuxtModuleOptions
     const outputDir = resolve(nuxt.options.rootDir, 'node_modules/.cache/agentskills')
     const targets = options.targets || []
 
-    // Scan for skills
+    // Scan for skills (priority: meta.agents > package.json)
     const modulesDir = join(nuxt.options.rootDir, 'node_modules')
+    const moduleSkills = scanInstalledModules(nuxt)
     const packageSkills = await scanForSkillPackages(modulesDir)
     const localSkills = await scanLocalPackage(nuxt.options.rootDir)
 
-    const skills = await resolveSkills(packageSkills, localSkills)
+    const skills = await resolveSkills([...moduleSkills, ...packageSkills], localSkills)
     setResolved(nuxt, skills)
 
     if (skills.length === 0) {
@@ -88,7 +89,7 @@ const module: NuxtModule<NuxtModuleOptions> = defineNuxtModule<NuxtModuleOptions
         if (path.includes('SKILL.md') || path.includes('/skills/')) {
           try {
             logger.info('Skill files changed, regenerating...')
-            const freshSkills = await resolveSkills(packageSkills, localSkills)
+            const freshSkills = await resolveSkills([...moduleSkills, ...packageSkills], localSkills)
             setResolved(nuxt, freshSkills)
 
             for (const skill of freshSkills) {
