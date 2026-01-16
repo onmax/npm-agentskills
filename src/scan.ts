@@ -1,7 +1,7 @@
 import type { Nuxt } from '@nuxt/schema'
 import type { PackageAgents, ScannedPackage } from './types'
 import { existsSync, promises as fsp } from 'node:fs'
-import { dirname, join } from 'pathe'
+import { dirname, isAbsolute, join, resolve } from 'pathe'
 import { readPackageJSON } from 'pkg-types'
 
 interface InstalledModule {
@@ -74,7 +74,9 @@ export function scanInstalledModules(nuxt: Nuxt): ScannedPackage[] {
 
   for (const mod of installed) {
     if (mod.meta?.agents?.skills && mod.entryPath) {
-      results.push({ pkg: mod.meta.name || 'unknown-module', skills: mod.meta.agents, pkgDir: dirname(mod.entryPath) })
+      // entryPath can be relative (e.g., '../src/module') - resolve against rootDir
+      const absEntryPath = isAbsolute(mod.entryPath) ? mod.entryPath : resolve(nuxt.options.rootDir, mod.entryPath)
+      results.push({ pkg: mod.meta.name || 'unknown-module', skills: mod.meta.agents, pkgDir: dirname(absEntryPath) })
     }
   }
   return results

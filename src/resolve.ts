@@ -25,7 +25,7 @@ export async function findReferences(skillDir: string): Promise<string[]> {
 /** Validate skill path doesn't use absolute paths */
 function validateSkillPath(path: string): void {
   // Only block absolute paths - relative paths with '..' are allowed since resolve() handles them safely
-  if (path.startsWith('/') || path.startsWith('\\') || /^[A-Za-z]:/.test(path)) {
+  if (path.startsWith('/') || path.startsWith('\\') || /^[A-Z]:/i.test(path)) {
     throw new Error(`Invalid skill path (absolute path not allowed): ${path}`)
   }
 }
