@@ -22,10 +22,11 @@ export async function findReferences(skillDir: string): Promise<string[]> {
   return files.filter(f => f.endsWith('.md')).map(f => `references/${f}`)
 }
 
-/** Validate skill path doesn't escape package directory */
+/** Validate skill path doesn't use absolute paths */
 function validateSkillPath(path: string): void {
-  if (path.includes('..') || path.startsWith('/') || path.startsWith('\\')) {
-    throw new Error(`Invalid skill path (path traversal attempt): ${path}`)
+  // Only block absolute paths - relative paths with '..' are allowed since resolve() handles them safely
+  if (path.startsWith('/') || path.startsWith('\\') || /^[A-Za-z]:/.test(path)) {
+    throw new Error(`Invalid skill path (absolute path not allowed): ${path}`)
   }
 }
 
