@@ -1,5 +1,10 @@
 # npm-agentskills
 
+[![npm version](https://comark-ui.onmax.me/badge.svg?source=npm-version&package=npm-agentskills&icon=npm)](https://www.npmjs.com/package/npm-agentskills)
+[![npm downloads](https://comark-ui.onmax.me/badge.svg?source=npm-downloads&package=npm-agentskills&period=month&icon=npm)](https://www.npmjs.com/package/npm-agentskills)
+[![license](https://comark-ui.onmax.me/badge.svg?label=license&value=MIT)](https://github.com/onmax/npm-agentskills/blob/main/LICENSE)
+[![docs](https://comark-ui.onmax.me/badge.svg?label=docs&value=npm-agentskills)](https://github.com/onmax/npm-agentskills#readme)
+
 Bundle agent skills with your npm packages to help AI assistants understand your library.
 
 ## What Are Agent Skills?
